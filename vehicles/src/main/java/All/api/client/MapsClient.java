@@ -12,12 +12,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Objects;
 
 @Component
-@RequiredArgsConstructor
+
 public class MapsClient {
     private static final Logger log = LoggerFactory.getLogger(MapsClient.class);
 
     private final WebClient client;
     private final ModelMapper mapper;
+    public MapsClient(WebClient maps, ModelMapper mapper) {
+        this.client = maps;
+        this.mapper = mapper;
+    }
 
 
     public Location getAddress(Location location) {

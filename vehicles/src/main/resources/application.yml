@@ -1,2 +1,11 @@
 server:
   port: 8083
+
+spring:
+  application:
+    name: VehicleAPI
+
+pricing:
+  endpoint: http://localhost:8082
+maps:
+  endpoint: http://localhost:8081

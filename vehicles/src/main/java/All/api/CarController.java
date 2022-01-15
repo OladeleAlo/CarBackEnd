@@ -1,36 +1,23 @@
 package All.api;
-
 import All.domain.Car.Car;
+import All.domain.Car.CarRepresentation;
 import All.service.CarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
 @RestController
 @RequestMapping("/cars")
 @RequiredArgsConstructor
 public class CarController {
-
     private final CarService carService;
-    private final CarResourceAssembler assembler;
-
+    private final CarRepresentationAssembler assembler;
     @GetMapping
-    Resources<Resource<Car>> list() {
-        List<Resource<Car>> resources = carService.list().stream().map(assembler::toResource)
-                .collect(Collectors.toList());
-        return new Resources<>(resources,
-                linkTo(methodOn(CarController.class).list()).withSelfRel());
+    ResponseEntity<CollectionModel<CarRepresentation>> list() {
+        return ResponseEntity.ok(assembler.toCollectionModel(carService.list()));
     }
     @GetMapping("/{id}")
     ResponseEntity<Object> get(@PathVariable Long id) {
@@ -38,31 +25,28 @@ public class CarController {
         if (car== null){
             return ResponseEntity.notFound().build();
         }
-        Resource<Car> resource = assembler.toResource(car);
-        return ResponseEntity.ok(resource);
+        CarRepresentation carRepresentation = assembler.toModel(car);
+        return ResponseEntity.ok(carRepresentation);
     }
-
-
     @PostMapping
-    ResponseEntity<?> post( @RequestBody Car car) throws URISyntaxException {
+    ResponseEntity<?> post( @RequestBody Car car) {
         car = carService.save(car);
-        Resource<Car> resource = assembler.toResource(new Car());
-        return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
+        CarRepresentation carRepresentation = assembler.toModel(new Car());
+        Link link = WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder.methodOn(CarController.class)
+                        .post(car))
+                .withSelfRel();
+        return ResponseEntity.created(link.toUri()).body(carRepresentation);
     }
-
-
     @PutMapping("/{id}")
     ResponseEntity<?> put(@PathVariable Long id, @RequestBody Car car) {
         car.setId(id);
-
-        Resource<Car> resource = assembler.toResource(new Car());
-        return ResponseEntity.ok(resource);
+        CarRepresentation carRepresentation = assembler.toModel(new Car());
+        return ResponseEntity.ok(carRepresentation);
     }
-
     @DeleteMapping("/{id}")
     ResponseEntity<?> delete(@PathVariable Long id) throws ChangeSetPersister.NotFoundException {
         carService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }
