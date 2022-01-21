@@ -25,7 +25,7 @@ public class SwaggerConfig {
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
-                .build()
+                .build().pathMapping("http://localhost:8080/swagger-ui.html")
                 .apiInfo(apiInfo());
     }
     private ApiInfo apiInfo() {
