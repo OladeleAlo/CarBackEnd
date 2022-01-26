@@ -15,10 +15,14 @@ import org.springframework.web.bind.annotation.*;
 public class CarController {
     private final CarService carService;
     private final CarRepresentationAssembler assembler;
-    @GetMapping
-    ResponseEntity<CollectionModel<CarRepresentation>> list() {
+
+    @GetMapping(
+            produces = "application/json"
+    )
+    ResponseEntity <CollectionModel<CarRepresentation>> list() {
         return ResponseEntity.ok(assembler.toCollectionModel(carService.list()));
     }
+
     @GetMapping("/{id}")
     ResponseEntity<Object> get(@PathVariable Long id) {
         Car car = carService.findById(id);

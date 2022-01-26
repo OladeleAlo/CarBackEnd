@@ -81,9 +81,8 @@ public class CarControllerTest extends AbstractTest {
         mvc.perform(get("/cars"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$._embedded").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.carList[0].details.mileage").value(32280))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.cars[0].details.mileage").value(32280))
                 .andDo(print());
-
     }
 
     /**
